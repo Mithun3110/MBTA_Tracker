@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alerts</title>
+</head>
+<body>
+    
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenline Tracker</title>
+    <link rel="stylesheet" href="..\static\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <header>
+        <a href="{{ url_for('index') }}">
+            <div class="logo">Greenline Tracker</div>
+        </a>
+        
+        <nav>
+            <ul>
+                <li><a href="{{url_for('index')}}">Dashboard</a></li>
+                <li><a href="{{url_for('stops')}}">Stops</a></li>
+                <li><a href="{{url_for('schedules')}}">Schedules</a></li>
+                <li><a href="{{url_for('travel_groups')}}">Travel Groups</a></li>
+                <li><a href="{{url_for('alerts')}}">Alerts</a></li>
+                <li><a href="{{url_for('feedback')}}">Feedback</a></li>
+                <li><a href="/user-profile"><i class="fas fa-user-circle user-icon"></i></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="content">
+        <h1>Schedules</h1>
+                <table>
+            <thead>
+                <tr>
+                    <th>Train ID</th>
+                    <th>Route Name</th>
+                    <th>Stop</th>
+                    <th>Arrival Time</th>
+                    <th>Departure Time</th>
+                    <th>Travel Time (minutes)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in schedules %}
+                <tr>
+                    <td>{{ schedule[1] }}</td>
+                    <td>{{ schedule[2] }}</td>  <!-- Display the route name -->
+                    <td>{{ schedule[3] }}</td>
+                    <td>{{ schedule[4] }}</td>
+                    <td>{{ schedule[5] }}</td>
+                    <td>{{ schedule[6] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Greenline Tracker. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

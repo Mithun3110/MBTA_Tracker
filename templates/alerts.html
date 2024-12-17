@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenline Tracker</title>
+    <link rel="stylesheet" href="..\static\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <header>
+        <a href="{{ url_for('index') }}">
+            <div class="logo">Greenline Tracker</div>
+        </a>
+        
+        <nav>
+            <ul>
+                <li><a href="{{url_for('index')}}">Dashboard</a></li>
+                <li><a href="{{url_for('stops')}}">Stops</a></li>
+                <li><a href="{{url_for('schedules')}}">Schedules</a></li>
+                <li><a href="{{url_for('travel_groups')}}">Travel Groups</a></li>
+                <li><a href="{{url_for('alerts')}}">Alerts</a></li>
+                <li><a href="{{url_for('feedback')}}">Feedback</a></li>                
+                <li><a href="/user-profile"><i class="fas fa-user-circle user-icon"></i></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="content">
+        <section id="alerts" class="section">
+            <h1>Transit Alerts</h1>
+            {% if alerts and alerts|length > 0 %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Text</th>
+                            <th>Type</th>
+                            <th>Expires At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in alerts %}
+                            <tr>
+                                <td>{{ alert['Alert ID'] }}</td>
+                                <td>{{ alert['Text'] }}</td>
+                                <td>{{ alert['Type'] }}</td>
+                                <td>{{ alert['Expires At'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No alerts for the Green Line.</p>
+            {% endif %}
+        </section>  
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Greenline Tracker. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alerts</title>
+</head>
+<body>
+    
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenline Tracker</title>
+    <link rel="stylesheet" href="..\static\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <header>
+      <a href="{{ url_for('index') }}">
+        <div class="logo">Greenline Tracker</div>
+    </a>
+      
+      <nav>
+        <ul>
+          <li><a href="{{url_for('index')}}">Dashboard</a></li>
+          <li><a href="{{url_for('stops')}}">Stops</a></li>
+          <li><a href="{{url_for('schedules')}}">Schedules</a></li>
+          <li><a href="{{url_for('travel_groups')}}">Travel Groups</a></li>
+          <li><a href="{{url_for('alerts')}}">Alerts</a></li>
+          <li><a href="{{url_for('feedback')}}">Feedback</a></li>
+          <li><a href="/user-profile"><i class="fas fa-user-circle user-icon"></i></a></li>
+      </ul>
+      </nav>
+  </header>
+
+    <main class="content">
+      <h1>Stops</h1>
+      <div class="grid">
+        <div class="card" style="width: 25rem; height: 10rem;" >
+            <h2>Greenline</h2>
+            <p class="card-text">Information about the Green Line stops and services.</p>
+            <a href="{{url_for('greenLineStops')}}" class="btn btn-primary">Click to view list of Stops.</a>
+        </div>
+      </div>  
+      <!-- <ul>
+          {% for stop in stops %}
+              <li>Stop Name: {{ stop.stop_name }}, Code: {{ stop.stop_code }}, Sequence: {{ stop.stop_sequence }}</li>
+  
+              <h1>Stops</h1>
+  
+          <h2>Stops from Database:</h2>
+          <ul>
+            {% for stop in stops %}
+            <li>{{ stop.stop_name }} ({{ stop.stop_code }})</li>
+            {% endfor %}
+          </ul>
+  
+          <h2>Live Stops from MBTA:</h2>
+          <ul>
+          {% for stop in live_stops %}
+          <li>{{ stop.attributes.name }} ({{ stop.id }})</li>
+          {% endfor %}
+          </ul>
+  
+          {% endfor %}
+      </ul> -->
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Greenline Tracker. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

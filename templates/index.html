@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenline Tracker</title>
+    <link rel="stylesheet" href="..\static\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Popup Background */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        /* Popup Content Box */
+        .popup-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 30rem;
+            margin: 10% auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Close Button */
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* Form Styling */
+        #add-favorite-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #add-favorite-form label {
+            font-size: 1rem;
+        }
+
+        #add-favorite-form select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+
+        #add-favorite-form .btn {
+            padding: 0.5rem 1rem;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #add-favorite-form .btn:hover {
+            background-color: #218838;
+        }
+        
+        /* Style for the dropdown (select) elements */
+    select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        outline: none;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+    /* Focused state for dropdowns */
+    select:focus {
+        border-color: #007bff;
+        background-color: #e8f4fd;
+    }
+
+    /* Style for the option elements in dropdown */
+    option {
+        padding: 8px;
+    }
+
+    /* Style for the selected option */
+    option[selected] {
+        background-color: #e8f4fd;
+    }
+
+    /* Style for buttons */
+    button {
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: rgb(0, 0, 0);
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Button hover effect */
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Button focus effect */
+    button:focus {
+        outline: none;
+        background-color: #0056b3;
+    }
+
+    </style>
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <header>
+        <a href="{{ url_for('index') }}">
+            <div class="logo">Greenline Tracker</div>
+        </a>
+        
+        
+        <nav>
+            <ul>
+                <li><a href="{{url_for('stops')}}">Stops</a></li>
+                <li><a href="{{url_for('schedules')}}">Schedules</a></li>
+                <li><a href="{{url_for('travel_groups')}}">Travel Groups</a></li>
+                <li><a href="{{url_for('alerts')}}">Alerts</a></li>
+                <li><a href="{{url_for('feedback')}}">Feedback</a></li>
+                <li><a href="/user-profile"><i class="fas fa-user-circle user-icon"></i></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <h1>Dashboard</h1>
+
+            <!-- First Row: Live Train Status and Upcoming Schedules -->
+    <div class="grid" style="margin-bottom: 2rem;">
+        <div class="card">
+            <h2>Live Train Status</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Train ID</th>
+                        <th>Route</th>
+                        <th>Status</th>
+                        <th>Current Stop</th>
+                        <th>Last Updated</th>
+                    </tr>
+                </thead>
+                <tbody id="train-status">
+                    {% for train in trains %}
+                    <tr>
+                        <td>{{ train.train_id }}</td>
+                        <td>{{ train.route }}</td>
+                        <td>
+                            {% set status = trainStatus_dict[train.train_id] %}
+                            {% if status %}
+                                {{ status.status }}
+                            {% else %}
+                                No status available
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set current_stop_id = status.current_stop_id if status else None %}
+                            {% if current_stop_id %}
+                                {{ stop_names[current_stop_id] }} <!-- Display stop name instead of stop_id -->
+                                <!--{{current_stop_id}}-->
+                            {% else %}
+                                No current stop available
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if status %}
+                                {{ status.last_updated }}
+                            {% else %}
+                                No last update available
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No trains available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+
+        <div class="card">
+            <h2>Upcoming Schedules</h2>
+            <form method="POST" action="{{ url_for('index') }}">
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label for="schedule-route-select">Route:</label>
+                        <select id="schedule-route-select" name="route" required>
+                            <option value="">Select Route</option>
+                            <option value="1">Green Line A</option>
+                            <option value="2">Green Line B</option>
+                            <option value="3">Green Line C</option>
+                            <option value="4">Green Line D</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="schedule-stop-select">Stop:</label>
+                        <select id="schedule-stop-select" name="stop" required>
+                            <option value="">Select Stop</option>
+                            {% for stop in stops %}
+                            <option value="{{ stop.id }}" {% if stop.id == selected_stop %}selected{% endif %}>{{ stop.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" style="padding: 0.5rem; border-radius: 4px;">View Schedule</button>
+                    </div>
+                </div>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stop</th>
+                        <th>Arrival</th>
+                        <th>Departure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set has_valid_schedule = false %}
+                    {% for schedule in schedules %}
+                        {% if stop_names.get(schedule.stop_id) %}
+                            <tr>
+                                <td>{{ stop_names[schedule.stop_id] }}</td>
+                                <td>{{ schedule.arrival_time }}</td>
+                                <td>{{ schedule.departure_time }}</td>
+                            </tr>
+                            {% set has_valid_schedule = true %}
+                        {% endif %}
+                        {% else %}
+                        <tr>
+                            <td colspan="3">No schedules selected</td>
+                        </tr>
+                    {% endfor %}
+                    
+                </tbody>
+            </table>
+            
+            
+            
+        </div>
+    </div>
+
+    <!-- Second Row: Alerts and Favorites -->
+    <div class="grid">
+        <div class="card">
+            <h2>Alerts</h2>
+            {% if alerts and alerts|length > 0 %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Text</th>
+                            <th>Type</th>
+                            <th>Expires At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in alerts %}
+                        <tr>
+                            <td>{{ alert['Alert ID'] }}</td>
+                            <td>{{ alert['Text'] }}</td>
+                            <td>{{ alert['Type'] }}</td>
+                            <td>{{ alert['Expires At'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No alerts for the Green Line.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Favorites</h2>
+                <button id="add-favorite-btn" style="background: none; border: none; cursor: pointer; font-size: 1.5rem;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stop ID</th>
+                        <th>Stop Name</th>
+                    </tr>
+                </thead>
+                <tbody id="favorites-list">
+                    {% for favorite in favorite_stops %}
+                    <tr>
+                        <td>{{ favorite.stop_id }}</td>
+                        <td>{{ favorite.stop.stop_name }}</td>  <!-- Assuming you have a relationship defined -->
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2">No favorite stops added.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Greenline Tracker. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Popup Modal -->
+    <div id="favorites-popup" class="popup">
+        <div class="popup-content">
+            <span id="close-popup" class="close">&times;</span>
+            <h2>Add to Favorites</h2>
+            <form method="POST" action="/add_favorite">
+                <label for="route-select">Route:</label>
+                <select id="route-select" name="route" required>
+                    <option value="">Select Route</option>
+                    <option value="1" {% if selected_route == 1 %} selected {% endif %}>Green Line A</option>
+                    <option value="2" {% if selected_route == 2 %} selected {% endif %}>Green Line B</option>
+                    <option value="3" {% if selected_route == 3 %} selected {% endif %}>Green Line C</option>
+                    <option value="4" {% if selected_route == 4 %} selected {% endif %}>Green Line D</option>
+                </select>
+    
+                <label for="stop-select">Stop:</label>
+                <select id="stop-select" name="stop" required>
+                    <option value="">Select Stop</option>
+                    {% for stop in stops %}
+                        <option value="{{ stop.stop_id }}" {% if stop.stop_id == selected_stop %} selected {% endif %}>
+                            {{ stop.stop_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+    
+                <button type="submit" class="btn">Add Favorite</button>
+            </form>
+        </div>
+    </div>
+    
+
+    <script src="script.js"></script>
+    <script>
+        // Correct modal and button references
+        const modal = document.getElementById("favorites-popup");
+        const addButton = document.getElementById("add-favorite-btn");
+        const closeButton = document.getElementById("close-popup");
+
+        // Open modal
+        addButton.addEventListener("click", () => {
+            modal.style.display = "flex"; // Show the modal when the button is clicked
+        });
+
+        // Close modal
+        closeButton.addEventListener("click", () => {
+            modal.style.display = "none"; // Hide the modal when the close button is clicked
+        });
+
+        // Close modal if clicking outside the content box
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+        const routeSelect = document.getElementById("route-select");
+        const stopSelect = document.getElementById("stop-select");
+
+        // Fetch stops when a route is selected
+        routeSelect.addEventListener("change", function() {
+            const selectedRoute = routeSelect.value;
+            
+            if (selectedRoute) {
+                fetch(`/get_stops_by_route?route=${selectedRoute}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear existing options in the stop select
+                        stopSelect.innerHTML = '<option value="">Select Stop</option>';
+                        
+                        // Populate the stop select with new options
+                        data.forEach(stop => {
+                            const option = document.createElement("option");
+                            option.value = stop.id;
+                            option.textContent = stop.name;
+                            stopSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching stops:', error));
+            } else {
+                // Clear stops if no route is selected
+                stopSelect.innerHTML = '<option value="">Select Stop</option>';
+            }
+        });
+        document.getElementById("schedule-route-select").addEventListener("change", function() {
+            const routeName = this.value; // Get the selected route name
+            const stopSelect = document.getElementById("schedule-stop-select"); // Reference to the stops dropdown
+
+            // Clear previous stops
+            stopSelect.innerHTML = '<option value="">Select Stop</option>';
+
+            if (routeName) {
+                // Fetch stops associated with the selected route
+                fetch(`/get_stops_by_route?route=${routeName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate the stops dropdown
+                        data.forEach(stop => {
+                            const option = document.createElement("option");
+                            option.value = stop.id; // Set the stop id as the value
+                            option.textContent = stop.name; // Set the stop name as the display text
+                            stopSelect.appendChild(option); // Add the option to the dropdown
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching stops:', error);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
